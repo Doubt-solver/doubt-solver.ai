@@ -1,0 +1,409 @@
+# doubt-solver.ai — Super Cost-Saving Architecture Plan
+
+A Duolingo-style education platform for school students featuring AI-powered exam prep, self-assessment, scoring, and personalized recommendations — backed by a RAG-enhanced AI model.
+
+---
+
+## 🎯 Core Product Features
+
+| Feature | Description |
+|---|---|
+| **Exam Preparation** | AI generates topic-wise study material, flashcards, and summaries |
+| **Self-Assessment Exams** | AI generates MCQ / short-answer tests based on syllabus |
+| **Scoring & Analytics** | Instant scoring with topic-level performance breakdown |
+| **Smart Recommendations** | AI recommends weak-area practice based on score patterns |
+| **Gamification** | XP, streaks, leaderboards, badges, levels — Duolingo-style |
+| **RAG-Powered Knowledge** | Textbooks & NCERT content indexed for contextual AI answers |
+
+---
+
+## 💰 Cost-Saving Philosophy
+
+> [!IMPORTANT]
+> The #1 rule: **Never pay for idle compute.** Use serverless, pay-per-use services, and open-source models wherever possible. Target **< ₹15,000/month** ($180) for the first 10,000 users.
+
+### Key Cost Principles
+1. **Serverless-first** — Zero cost when no one is using it
+2. **Open-source LLMs** — Use DeepSeek / Gemma / Llama via free/cheap APIs
+3. **Edge caching** — Cache AI-generated questions & material aggressively
+4. **Static frontend** — Host on Vercel/Cloudflare Pages for free
+5. **Managed free-tier databases** — Supabase / Neon / PlanetScale
+
+---
+
+## 🏗️ High-Level Architecture
+
+```mermaid
+graph TB
+    subgraph "Frontend — FREE Hosting"
+        A[Next.js PWA<br/>Vercel Free Tier] --> B[Service Worker<br/>Offline Cache]
+    end
+
+    subgraph "Auth & BaaS — FREE"
+        C[Supabase Auth<br/>50K MAU Free]
+    end
+
+    subgraph "API Layer — Pay-per-use"
+        D[Cloudflare Workers<br/>100K req/day FREE]
+        E[Supabase Edge Functions<br/>500K invocations FREE]
+    end
+
+    subgraph "Database — FREE Tier"
+        F[Supabase PostgreSQL<br/>500MB FREE]
+        G[Upstash Redis<br/>10K cmd/day FREE]
+    end
+
+    subgraph "AI Engine — Ultra Low Cost"
+        H[Gemini 2.0 Flash<br/>FREE tier / $0.10 per 1M tokens]
+        I[Vector DB: Supabase pgvector<br/>FREE with Supabase]
+    end
+
+    subgraph "Storage — FREE"
+        J[Supabase Storage<br/>1GB FREE]
+        K[Cloudflare R2<br/>10GB FREE]
+    end
+
+    A --> C
+    A --> D
+    D --> E
+    E --> F
+    E --> G
+    E --> H
+    H --> I
+    E --> J
+```
+
+---
+
+## 🧩 Detailed Component Breakdown
+
+### 1. Frontend (Cost: **₹0/month**)
+
+| Choice | Why |
+|---|---|
+| **Next.js 15 (App Router)** | SSR + SSG for fast loads, great SEO |
+| **Hosted on Vercel** | Free tier: 100GB bandwidth, serverless functions |
+| **PWA** | Offline support, installable, push notifications |
+| **Framer Motion** | Duolingo-style micro-animations |
+
+**Gamification UI Components:**
+- 🔥 Streak counter with animated fire icon
+- ⭐ XP bar with level progression
+- 🏆 Weekly leaderboards with leagues (Bronze → Diamond)
+- 🎖️ Achievement badges with unlock animations
+- 💚 Mascot character (like Duo owl) for encouragement
+- 📊 Performance radar charts per subject
+
+---
+
+### 2. Authentication (Cost: **₹0/month**)
+
+| Choice | Why |
+|---|---|
+| **Supabase Auth** | 50,000 MAU free, OAuth, Magic Link, Phone OTP |
+| **Social Logins** | Google, Apple — most school kids have Google |
+
+---
+
+### 3. Backend / API Layer (Cost: **₹0–500/month**)
+
+> [!TIP]
+> Avoid running a 24/7 server at all costs. Use **serverless functions** that scale to zero.
+
+**Option A: Supabase Edge Functions (Recommended for MVP)**
+- 500K invocations/month FREE
+- Runs on Deno — fast cold starts
+- Direct access to Supabase DB
+
+**Option B: Cloudflare Workers (for heavy traffic)**
+- 100K requests/day FREE
+- Global edge deployment — ultra-low latency
+- Workers AI for running open-source models at the edge
+
+**API Design:**
+```
+POST /api/exam/generate      → AI generates exam questions
+POST /api/exam/submit         → Submit answers, get score
+GET  /api/exam/history        → Past exam results
+GET  /api/recommend           → AI recommendations based on scores
+POST /api/prep/material       → AI generates study material
+GET  /api/user/stats          → XP, streak, level, badges
+GET  /api/leaderboard         → Weekly leaderboard
+POST /api/doubt/ask           → RAG-powered doubt solving
+```
+
+---
+
+### 4. Database (Cost: **₹0/month**)
+
+**Supabase PostgreSQL (Free Tier: 500MB, 2 projects)**
+
+```sql
+-- Core Tables
+users (id, name, email, avatar, grade, board, xp, level, streak, created_at)
+subjects (id, name, grade, board)
+topics (id, subject_id, name, chapter_no)
+exams (id, user_id, subject_id, topic_id, score, total, created_at)
+exam_questions (id, exam_id, question, options, correct_answer, user_answer, is_correct)
+study_materials (id, topic_id, content_type, content, ai_generated)
+user_badges (id, user_id, badge_type, earned_at)
+user_streaks (id, user_id, date, completed)
+
+-- Caching Layer
+question_cache (id, topic_id, difficulty, questions_json, created_at, ttl)
+```
+
+**Upstash Redis (Free: 10K commands/day)**
+- Cache leaderboard rankings
+- Cache AI responses for common questions
+- Rate limiting per user
+
+---
+
+### 5. AI Engine — The Brain (Cost: **₹500–2000/month**)
+
+> [!IMPORTANT]
+> This is the only component that costs real money. The strategy: **cache aggressively + use cheapest models.**
+
+#### LLM Strategy (Tiered)
+
+| Tier | Model | Cost | Use Case |
+|---|---|---|---|
+| **Free** | Gemini 2.0 Flash (Free tier) | ₹0 | Question generation, study material |
+| **Cheap** | DeepSeek V3 API | ~$0.07/1M input tokens | Complex reasoning, doubt solving |
+| **Fallback** | Groq + Llama 3.3 | Free tier available | Backup when rate-limited |
+
+#### RAG Implementation (Cost: **₹0** with Supabase)
+
+```mermaid
+graph LR
+    A[NCERT/Textbook PDFs] --> B[Chunk & Embed<br/>text-embedding-004]
+    B --> C[Supabase pgvector<br/>Vector Store]
+    D[Student Question] --> E[Embed Query]
+    E --> F[Similarity Search<br/>pgvector]
+    F --> G[Top-K Context Chunks]
+    G --> H[LLM + Context<br/>= Accurate Answer]
+```
+
+**RAG Data Sources:**
+- NCERT textbooks (Class 6–12) — public domain
+- State board syllabus documents
+- Previous year question papers
+- Teacher-curated notes (community)
+
+**Embedding Model:** Google `text-embedding-004` (Free tier: 1,500 requests/min)
+
+**Vector Store:** Supabase `pgvector` extension — **completely free** with your existing Supabase DB.
+
+#### Cost Optimization Tricks:
+1. **Pre-generate & cache** question banks per topic/difficulty — don't call LLM every time
+2. **Batch process** study material during off-peak (night cron jobs)
+3. **Template-based generation** — LLM fills in variables, not generates from scratch
+4. **Token limit discipline** — max 500 input + 1000 output tokens per call
+5. **Deduplication** — hash questions to avoid regenerating identical ones
+
+---
+
+### 6. Storage (Cost: **₹0/month**)
+
+| Service | Use | Free Tier |
+|---|---|---|
+| **Supabase Storage** | User avatars, badges | 1 GB |
+| **Cloudflare R2** | Textbook PDFs, study material | 10 GB + 1M reads free |
+
+---
+
+## 🎮 Gamification System Design (Duolingo-Inspired)
+
+### XP & Leveling
+
+```
+Level 1:     0 XP    (Beginner)
+Level 2:   100 XP    (Explorer)
+Level 3:   300 XP    (Scholar)
+Level 4:   600 XP    (Expert)
+Level 5: 1,000 XP    (Champion)
+Level 6: 1,500 XP    (Legend)
+...continues exponentially
+```
+
+**XP Earning:**
+- Complete a practice set → +10 XP
+- Score 80%+ on exam → +25 XP bonus
+- Perfect score → +50 XP bonus
+- Maintain streak → +5 XP/day bonus
+- First exam of the day → +15 XP
+
+### Streak System
+- 🔥 Daily streak counter (consecutive days of activity)
+- ❄️ Streak Freeze (1 free, then earn via XP)
+- 🏅 Streak milestones (7-day, 30-day, 100-day badges)
+
+### Leaderboard & Leagues
+- Weekly leagues: Bronze → Silver → Gold → Platinum → Diamond
+- Top 10 promoted, Bottom 5 demoted each week
+- Separate leaderboards per grade/board
+
+### Achievement Badges
+- 🎯 "Sharp Shooter" — 5 perfect scores
+- 📚 "Bookworm" — Complete 50 study sessions
+- 🔥 "On Fire" — 30-day streak
+- 🧠 "Subject Master" — Score 90%+ in all topics of a subject
+- 🏆 "Diamond Champion" — Reach Diamond league
+
+---
+
+## 📱 User Journey Flow
+
+```mermaid
+flowchart TD
+    A[Student Signs Up] --> B[Select Grade & Board]
+    B --> C[Choose Subject]
+    C --> D{What to do?}
+    D --> E[📖 Study Mode]
+    D --> F[📝 Take Exam]
+    D --> G[❓ Ask a Doubt]
+    
+    E --> E1[AI generates topic summary]
+    E1 --> E2[Flashcards + Key Points]
+    E2 --> E3[+10 XP earned]
+    
+    F --> F1[AI generates MCQ exam]
+    F1 --> F2[Timer-based quiz UI]
+    F2 --> F3[Instant Score + Review]
+    F3 --> F4[+25 XP if score > 80%]
+    F3 --> F5[AI Recommends weak topics]
+    
+    G --> G1[RAG searches textbook content]
+    G1 --> G2[AI explains with context]
+    G2 --> G3[Follow-up questions]
+    
+    E3 --> H[🔥 Streak Updated]
+    F4 --> H
+    H --> I[📊 Leaderboard Updated]
+```
+
+---
+
+## 💸 Total Monthly Cost Estimate
+
+| Component | Service | Monthly Cost |
+|---|---|---|
+| Frontend Hosting | Vercel Free | ₹0 |
+| Auth | Supabase Auth Free | ₹0 |
+| Database | Supabase Postgres Free | ₹0 |
+| Caching | Upstash Redis Free | ₹0 |
+| API Functions | Supabase Edge Functions | ₹0 |
+| Vector DB | pgvector (Supabase) | ₹0 |
+| Object Storage | Cloudflare R2 Free | ₹0 |
+| **AI (LLM calls)** | **Gemini Flash + DeepSeek** | **₹500–2,000** |
+| **DNS + Domain** | **.ai domain** | **₹500/month amortized** |
+| **Total** | | **₹1,000 – ₹2,500/month** |
+
+> [!CAUTION]
+> The ₹1,000–₹2,500/month estimate is for **up to 10,000 users**. Beyond that, Supabase Pro ($25/mo) and more LLM API budget will be needed. But by then, you should have revenue.
+
+---
+
+## 📐 Tech Stack Summary
+
+```mermaid
+graph LR
+    subgraph Frontend
+        A[Next.js 15]
+        B[Framer Motion]
+        C[PWA]
+    end
+    
+    subgraph Backend
+        D[Supabase Edge Functions]
+        E[Cloudflare Workers]
+    end
+    
+    subgraph Database
+        F[Supabase PostgreSQL]
+        G[pgvector]
+        H[Upstash Redis]
+    end
+    
+    subgraph AI
+        I[Gemini 2.0 Flash]
+        J[DeepSeek V3]
+        K[text-embedding-004]
+    end
+    
+    subgraph Hosting
+        L[Vercel]
+        M[Cloudflare R2]
+    end
+```
+
+| Layer | Technology | Cost |
+|---|---|---|
+| Frontend | Next.js 15, Framer Motion, PWA | Free |
+| Hosting | Vercel | Free |
+| Auth | Supabase Auth | Free |
+| API | Supabase Edge Functions | Free |
+| Database | Supabase PostgreSQL + pgvector | Free |
+| Cache | Upstash Redis | Free |
+| AI (Primary) | Gemini 2.0 Flash | Free–Low |
+| AI (Complex) | DeepSeek V3 | Low |
+| Embeddings | text-embedding-004 | Free |
+| Storage | Cloudflare R2 | Free |
+
+---
+
+## 🚀 Recommended Build Phases
+
+### Phase 1 — MVP (4–6 weeks)
+- [ ] Auth + user profiles (grade, board selection)
+- [ ] 1 subject with AI-generated MCQ exams
+- [ ] Scoring + basic analytics
+- [ ] XP + streak system
+- [ ] Basic Duolingo-style UI with animations
+
+### Phase 2 — Core Features (4–6 weeks)
+- [ ] RAG-powered doubt solving
+- [ ] AI study material generation
+- [ ] Leaderboards + leagues
+- [ ] Multiple subjects + boards (CBSE, ICSE, State)
+- [ ] Badge/achievement system
+
+### Phase 3 — Growth (6–8 weeks)
+- [ ] PWA + offline mode
+- [ ] Push notifications (streak reminders)
+- [ ] Teacher/parent dashboard
+- [ ] Community notes (student-contributed)
+- [ ] Referral system
+
+### Phase 4 — Monetization
+- [ ] Freemium model (3 exams/day free, unlimited with sub)
+- [ ] Premium AI features (detailed explanations, custom exams)
+- [ ] School/institution bulk licensing
+- [ ] Ad-supported free tier
+
+---
+
+## 🔒 Scaling Escape Plan
+
+When you outgrow free tiers:
+
+| Trigger | Action | Cost |
+|---|---|---|
+| 500MB DB full | Supabase Pro | $25/mo |
+| 50K MAU exceeded | Supabase Pro (included) | $25/mo |
+| Heavy AI usage | Add OpenRouter load-balancing | $50–100/mo |
+| 100K+ users | Move to Railway/Fly.io | $50/mo |
+| Need mobile app | React Native (reuse Next.js components) | Dev time only |
+
+---
+
+## Verification Plan
+
+### Automated Tests
+Since this is an architecture document (no code yet), no automated tests apply at this stage.
+
+### Manual Verification
+- **User review**: Verify the architecture meets all product requirements
+- **Cost validation**: Cross-check free tier limits on Supabase, Vercel, Cloudflare, and LLM APIs
+- **Scalability review**: Confirm the scaling escape plan covers realistic growth scenarios

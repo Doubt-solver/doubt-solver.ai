@@ -1,15 +1,18 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
+const MOCK_USER_ID = "00000000-0000-0000-0000-000000000000";
+
 export async function POST(request: Request) {
     try {
         const supabase = await createClient();
-        const {
-            data: { user },
-        } = await supabase.auth.getUser();
+        let userId = MOCK_USER_ID;
 
-        if (!user) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) userId = user.id;
+        } catch {
+            // Auth disabled — use mock user
         }
 
         const body = await request.json();
@@ -23,7 +26,7 @@ export async function POST(request: Request) {
 
         // Save exam session
         const { error: examError } = await supabase.from("exam_sessions").insert({
-            user_id: user.id,
+            user_id: userId,
             subject,
             topic,
             difficulty,
@@ -46,7 +49,7 @@ export async function POST(request: Request) {
         const { data: profile } = await supabase
             .from("profiles")
             .select("xp, streak, last_active, level")
-            .eq("id", user.id)
+            .eq("id", userId)
             .single();
 
         if (profile) {
@@ -74,7 +77,7 @@ export async function POST(request: Request) {
                     level: newLevel,
                     last_active: today,
                 })
-                .eq("id", user.id);
+                .eq("id", userId);
         }
 
         return NextResponse.json({

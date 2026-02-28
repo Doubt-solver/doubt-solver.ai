@@ -5,12 +5,13 @@ export async function GET(request: Request) {
     const requestUrl = new URL(request.url);
     const code = requestUrl.searchParams.get("code");
 
+    let isNewUser = false;
+
     if (code) {
         const supabase = await createClient();
         const { error } = await supabase.auth.exchangeCodeForSession(code);
 
         if (!error) {
-            // Check if profile exists, create one if not
             const {
                 data: { user },
             } = await supabase.auth.getUser();
@@ -18,11 +19,12 @@ export async function GET(request: Request) {
             if (user) {
                 const { data: existingProfile } = await supabase
                     .from("profiles")
-                    .select("id")
+                    .select("id, grade")
                     .eq("id", user.id)
                     .single();
 
                 if (!existingProfile) {
+                    // New user — create basic profile, redirect to onboarding
                     await supabase.from("profiles").insert({
                         id: user.id,
                         name:
@@ -37,10 +39,13 @@ export async function GET(request: Request) {
                         streak: 0,
                         last_active: new Date().toISOString().split("T")[0],
                     });
+                    isNewUser = true;
                 }
             }
         }
     }
 
-    return NextResponse.redirect(new URL("/dashboard", requestUrl.origin));
+    // New users go to onboarding, returning users go to dashboard
+    const redirectPath = isNewUser ? "/auth/onboarding" : "/dashboard";
+    return NextResponse.redirect(new URL(redirectPath, requestUrl.origin));
 }

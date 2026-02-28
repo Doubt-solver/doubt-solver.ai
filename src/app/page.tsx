@@ -94,7 +94,7 @@ export default function LandingPage() {
           <a href="#how-it-works" className="landing-nav-link">
             How it Works
           </a>
-          <Link href="/dashboard" className="btn btn-primary btn-sm">
+          <Link href="/auth/onboarding" className="btn btn-primary btn-sm">
             Get Started <ArrowRight size={16} />
           </Link>
         </div>
@@ -129,7 +129,7 @@ export default function LandingPage() {
             variants={fadeUp}
             custom={3}
           >
-            <Link href="/dashboard" className="btn btn-primary btn-lg">
+            <Link href="/auth/onboarding" className="btn btn-primary btn-lg">
               <Zap size={20} />
               Start Learning Free
             </Link>
@@ -266,7 +266,7 @@ export default function LandingPage() {
           <p>
             Join thousands of students who are studying smarter, not harder.
           </p>
-          <Link href="/dashboard" className="btn btn-primary btn-lg">
+          <Link href="/auth/onboarding" className="btn btn-primary btn-lg">
             <Zap size={20} />
             Start Learning — It&apos;s Free!
           </Link>

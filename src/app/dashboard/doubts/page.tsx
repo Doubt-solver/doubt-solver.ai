@@ -118,7 +118,7 @@ export default function DoubtsPage() {
             style={{
                 display: "flex",
                 flexDirection: "column",
-                height: "calc(100vh - 40px)",
+                height: "calc(100vh - 130px)",
             }}
         >
             <div className="page-header" style={{ flexShrink: 0 }}>
@@ -205,7 +205,7 @@ export default function DoubtsPage() {
                                     flexShrink: 0,
                                     background:
                                         msg.role === "assistant"
-                                            ? "linear-gradient(135deg, var(--primary-green), var(--primary-blue))"
+                                            ? "linear-gradient(135deg, #1A1A1A, #444)"
                                             : "var(--bg-elevated)",
                                     border: msg.role === "user" ? "2px solid var(--border-default)" : "none",
                                 }}

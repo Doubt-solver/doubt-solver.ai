@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSearchParams } from "next/navigation";
 import {
     X,
     Clock,
@@ -66,6 +67,18 @@ const fallbackQuestions: Question[] = [
 type ExamPhase = "setup" | "loading" | "quiz" | "result";
 
 export default function ExamPage() {
+    return (
+        <Suspense fallback={
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "50vh" }}>
+                <Loader2 size={32} className="animate-spin" style={{ color: "var(--primary-green)" }} />
+            </div>
+        }>
+            <ExamPageContent />
+        </Suspense>
+    );
+}
+
+function ExamPageContent() {
     const [phase, setPhase] = useState<ExamPhase>("setup");
     const [currentQ, setCurrentQ] = useState(0);
     const [selected, setSelected] = useState<number | null>(null);
@@ -75,10 +88,19 @@ export default function ExamPage() {
     const [questions, setQuestions] = useState<Question[]>([]);
 
     // Setup form state
+    const searchParams = useSearchParams();
     const [subject, setSubject] = useState("Mathematics");
     const [topic, setTopic] = useState("All Topics");
     const [difficulty, setDifficulty] = useState("Medium");
     const [numQuestions, setNumQuestions] = useState(5);
+
+    // Auto-fill from URL params (e.g. from subjects page)
+    useEffect(() => {
+        const paramSubject = searchParams.get("subject");
+        const paramTopic = searchParams.get("topic");
+        if (paramSubject) setSubject(paramSubject);
+        if (paramTopic) setTopic(paramTopic);
+    }, [searchParams]);
 
     const totalQuestions = questions.length;
 

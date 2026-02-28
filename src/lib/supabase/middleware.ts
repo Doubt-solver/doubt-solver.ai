@@ -29,30 +29,28 @@ export async function updateSession(request: NextRequest) {
         }
     );
 
-    // Refresh session — IMPORTANT: use getUser() not getSession()
+    // Refresh session if exists (but don't block if not)
+    await supabase.auth.getUser();
+
+    // AUTH DISABLED: Allow all routes without login
+    // When re-enabling, uncomment the block below:
+    /*
     const {
         data: { user },
     } = await supabase.auth.getUser();
 
-    // If not authenticated and trying to access dashboard, redirect to login
-    if (
-        !user &&
-        request.nextUrl.pathname.startsWith("/dashboard")
-    ) {
+    if (!user && request.nextUrl.pathname.startsWith("/dashboard")) {
         const url = request.nextUrl.clone();
         url.pathname = "/auth/login";
         return NextResponse.redirect(url);
     }
 
-    // If authenticated and on login page, redirect to dashboard
-    if (
-        user &&
-        request.nextUrl.pathname.startsWith("/auth/login")
-    ) {
+    if (user && request.nextUrl.pathname.startsWith("/auth/login")) {
         const url = request.nextUrl.clone();
         url.pathname = "/dashboard";
         return NextResponse.redirect(url);
     }
+    */
 
     return supabaseResponse;
 }
